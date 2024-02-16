@@ -1,11 +1,28 @@
 {
-  "name": "auth-service",
-  "version": "1.0.0",
-  "description": "\"A User Management Service\"",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+    "name": "auth-service",
+    "version": "1.0.0",
+    "description": "\"A User Management Service\"",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "node src/server.js",
+        "format:check": "prettier . --check",
+        "format:fix": "prettier . --write",
+        "lint:check": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "prepare": "husky"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/node": "^20.11.19",
+        "@typescript-eslint/eslint-plugin": "^7.0.1",
+        "@typescript-eslint/parser": "^7.0.1",
+        "eslint": "^8.56.0",
+        "eslint-config-prettier": "^9.1.0",
+        "husky": "^9.0.11",
+        "prettier": "3.2.5",
+        "typescript": "^5.3.3",
+        "typescript-eslint": "^7.0.1"
+    }
 }
