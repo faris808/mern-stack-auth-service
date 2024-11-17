@@ -3,7 +3,7 @@ import app from "../../src/app";
 import { DataSource } from "typeorm";
 import { AppDataSource } from "../../src/config/data-source";
 import { User } from "../../src/entity/User";
-import { truncateTables } from "../utils";
+import { Roles } from "../../src/constants";
 describe("POST /auth/register", () => {
     let connection: DataSource;
 
@@ -12,7 +12,8 @@ describe("POST /auth/register", () => {
     });
 
     beforeEach(async () => {
-        await truncateTables(connection);
+        await connection.dropDatabase();
+        await connection.synchronize();
     });
 
     afterAll(async () => {
@@ -101,6 +102,67 @@ describe("POST /auth/register", () => {
             expect((response.body as Record<string, string>).id).toBe(
                 users[0].id,
             );
+        });
+
+        it("should assign a customer role", async () => {
+            //Arrange
+            const userData = {
+                firstName: "Faris",
+                lastName: "Z",
+                email: "test@mern.space",
+                password: "secret",
+            };
+
+            //Act
+            await request(app).post("/auth/register").send(userData);
+
+            //Assert
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+            expect(users[0]).toHaveProperty("role");
+            expect(users[0].role).toBe(Roles.CUSTOMER);
+        });
+
+        it("should store the hashed password in the database", async () => {
+            //Arrange
+            const userData = {
+                firstName: "Faris",
+                lastName: "Z",
+                email: "test@mern.space",
+                password: "secret",
+            };
+
+            //Act
+            await request(app).post("/auth/register").send(userData);
+
+            //Assert
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+            expect(users[0].password).not.toBe(userData.password);
+            expect(users[0].password).toHaveLength(60);
+            expect(users[0].password).toMatch(/^\$2b\$\d+\$/);
+        });
+
+        it("should return 400 status code if email already exists", async () => {
+            //Arrange
+            const userData = {
+                firstName: "Faris",
+                lastName: "Z",
+                email: "test@mern.space",
+                password: "secret",
+            };
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({ ...userData, role: Roles.CUSTOMER });
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(userData);
+
+            const users = await userRepository.find();
+            //Assert
+            expect(response.statusCode).toBe(400);
+            expect(users).toHaveLength(1);
         });
     });
 
