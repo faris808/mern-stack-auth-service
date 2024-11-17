@@ -24,6 +24,8 @@ export default tseslint.config(
         rules: {
             "no-console": "off",
             "@typescript-eslint/no-misused-promises": "off",
+            "@typescript-eslint/require-await": "off",
+            "@typescript-eslint/no-unsafe-assignment": "off",
         },
     },
 );
