@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { AuthRequest, RegisterUserRequest } from "../types";
 import { UserService } from "../services/UserService";
 import { Logger } from "winston";
@@ -7,6 +7,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { TokenService } from "../services/TokenService";
 import createHttpError from "http-errors";
 import { CredentialService } from "../services/CredentialService";
+import { User } from "../entity/User";
 
 export class AuthController {
     constructor(
@@ -15,6 +16,42 @@ export class AuthController {
         private tokenService: TokenService,
         private credentialService: CredentialService,
     ) {}
+
+    async commonthings(
+        res: Response,
+        user: User,
+        payload: JwtPayload,
+        accessToken: string,
+    ) {
+        //Persist the refresh token
+
+        const newRefreshToken =
+            await this.tokenService.persistRefreshToken(user);
+
+        this.logger.info("Refresh token persisted", { id: user.id });
+
+        const refreshToken = this.tokenService.generateRefreshToken({
+            ...payload,
+            id: String(newRefreshToken.id),
+        });
+
+        this.logger.info("Refresh token generated", { id: user.id });
+
+        res.cookie("accessToken", accessToken, {
+            domain: "localhost",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60, // 1h
+            httpOnly: true, // Very Important
+        });
+
+        res.cookie("refreshToken", refreshToken, {
+            domain: "localhost",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60 * 24 * 365, //1y
+            httpOnly: true, // Very Important
+        });
+    }
+
     async register(
         req: RegisterUserRequest,
         res: Response,
@@ -48,30 +85,9 @@ export class AuthController {
             };
 
             const accessToken = this.tokenService.generateAccessToken(payload);
+            this.logger.info("Access token generated", { id: user.id });
 
-            //Persist the refresh token
-
-            const newRefreshToken =
-                await this.tokenService.persistRefreshToken(user);
-
-            const refreshToken = this.tokenService.generateRefreshToken({
-                ...payload,
-                id: String(newRefreshToken.id),
-            });
-
-            res.cookie("accessToken", accessToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60, // 1h
-                httpOnly: true, // Very Important
-            });
-
-            res.cookie("refreshToken", refreshToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60 * 24 * 365, //1y
-                httpOnly: true, // Very Important
-            });
+            await this.commonthings(res, user, payload, accessToken);
 
             res.status(201).json({ id: user.id });
         } catch (err) {
@@ -128,30 +144,9 @@ export class AuthController {
             };
 
             const accessToken = this.tokenService.generateAccessToken(payload);
+            this.logger.info("Access token generated", { id: user.id });
 
-            //Persist the refresh token
-
-            const newRefreshToken =
-                await this.tokenService.persistRefreshToken(user);
-
-            const refreshToken = this.tokenService.generateRefreshToken({
-                ...payload,
-                id: String(newRefreshToken.id),
-            });
-
-            res.cookie("accessToken", accessToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60, // 1h
-                httpOnly: true, // Very Important
-            });
-
-            res.cookie("refreshToken", refreshToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60 * 24 * 365, //1y
-                httpOnly: true, // Very Important
-            });
+            await this.commonthings(res, user, payload, accessToken);
 
             this.logger.info("User has been logged in", { id: user.id });
             res.json({ id: user.id });
@@ -166,7 +161,34 @@ export class AuthController {
         res.json({ ...user, password: undefined });
     }
 
-    async refresh(req: Request, res: Response) {
-        res.json({});
+    async refresh(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const payload: JwtPayload = {
+                sub: req.auth.sub,
+                role: req.auth.role,
+            };
+
+            const accessToken = this.tokenService.generateAccessToken(payload);
+            this.logger.info("Access token generated");
+
+            const user = await this.userService.findById(Number(req.auth.sub));
+
+            if (!user) {
+                const error = createHttpError(
+                    400,
+                    "User with the token could not found",
+                );
+                next(error);
+                return;
+            }
+
+            await this.commonthings(res, user, payload, accessToken);
+
+            this.logger.info("User has been logged in", { id: user.id });
+            res.json({ id: user.id });
+        } catch (error) {
+            next(error);
+            return;
+        }
     }
 }
