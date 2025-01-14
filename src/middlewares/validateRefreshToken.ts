@@ -22,6 +22,7 @@ export default expressjwt({
                     user: { id: Number(token?.payload.sub) },
                 },
             });
+            console.log("Request is coming here to isRevoked", token);
             return refreshToken === null;
         } catch (err) {
             logger.error("Error while getting the refresh token", {
