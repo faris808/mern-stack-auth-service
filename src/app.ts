@@ -4,6 +4,7 @@ import logger from "./config/logger";
 import cookieParser from "cookie-parser";
 import { HttpError } from "http-errors";
 import authRouter from "./routes/auth";
+import tenantRouter from "./routes/auth";
 
 const app = express();
 app.use(express.static("public"));
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/tenants", tenantRouter);
 
 //Ye ensure karna hai ki ye sab se last mein aaye tab hi saare error ko ye catch kar payega
 //Global error handler
