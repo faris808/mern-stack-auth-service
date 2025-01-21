@@ -8,6 +8,7 @@ import { TokenService } from "../services/TokenService";
 import createHttpError from "http-errors";
 import { CredentialService } from "../services/CredentialService";
 import { User } from "../entity/User";
+import { Roles } from "../constants";
 
 export class AuthController {
     constructor(
@@ -76,6 +77,7 @@ export class AuthController {
                 lastName,
                 email,
                 password,
+                role: Roles.CUSTOMER,
             });
             this.logger.info("User has been registered", { id: user.id });
 
@@ -196,6 +198,10 @@ export class AuthController {
 
     async logout(req: AuthRequest, res: Response, next: NextFunction) {
         try {
+            console.log(
+                "request is coming here upto logout function authcontroller:-",
+                req.auth,
+            );
             await this.tokenService.deleteRefreshToken(Number(req.auth.id));
             this.logger.info("Refresh token has been deleted", {
                 id: req.auth.id,

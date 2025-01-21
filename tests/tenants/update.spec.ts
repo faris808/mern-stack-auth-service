@@ -6,7 +6,7 @@ import { Tenant } from "../../src/entity/Tenant";
 import createJWKSMock from "mock-jwks";
 import { Roles } from "../../src/constants";
 
-describe("POST /tenants", () => {
+describe("PATCH /tenants/:id", () => {
     let connection: DataSource;
     let jwks: ReturnType<typeof createJWKSMock>;
     let adminToken: string;
@@ -36,7 +36,7 @@ describe("POST /tenants", () => {
     });
 
     describe("Given all fields", () => {
-        it("should return a 201 status code", async () => {
+        it("should return a 200 status code", async () => {
             //Arrange
             const tenantData = {
                 name: "Tenant Name",
@@ -51,28 +51,29 @@ describe("POST /tenants", () => {
 
             //Assert
             expect(response.statusCode).toBe(201);
-        });
 
-        it("should create tenant in the database", async () => {
-            //Arrange
-            const tenantData = {
-                name: "Tenant Name",
+            const tenantRepository = connection.getRepository(Tenant);
+            const tenantid = await tenantRepository.find({
+                select: ["id"],
+            });
+
+            const updatedTenantData = {
+                name: "New Tenant Name",
                 address: "Tenant Address",
             };
 
-            //Act
-            await request(app)
-                .post("/tenants")
+            const response2 = await request(app)
+                .patch(`/tenants/${tenantid[0].id}`)
                 .set("Cookie", [`accessToken=${adminToken}`])
-                .send(tenantData);
+                .send(updatedTenantData);
 
-            const tenantRepository = connection.getRepository(Tenant);
+            expect(response2.statusCode).toBe(200);
             const tenants = await tenantRepository.find();
 
             //Assert
             expect(tenants).toHaveLength(1);
-            expect(tenants[0].name).toBe(tenantData.name);
-            expect(tenants[0].address).toBe(tenantData.address);
+            expect(tenants[0].name).toBe(updatedTenantData.name);
+            expect(tenants[0].address).toBe(updatedTenantData.address);
         });
 
         it("should return 401 if user is not authenticated", async () => {
@@ -85,14 +86,28 @@ describe("POST /tenants", () => {
             //Act
             const response = await request(app)
                 .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken}`])
                 .send(tenantData);
-            expect(response.statusCode).toBe(401);
-
-            const tenantRepository = connection.getRepository(Tenant);
-            const tenants = await tenantRepository.find();
 
             //Assert
-            expect(tenants).toHaveLength(0);
+            expect(response.statusCode).toBe(201);
+
+            const tenantRepository = connection.getRepository(Tenant);
+            const tenantid = await tenantRepository.find({
+                select: ["id"],
+            });
+
+            const updatedTenantData = {
+                name: "New Tenant Name",
+                address: "Tenant Address",
+            };
+
+            //Act
+            const response2 = await request(app)
+                .patch(`/tenants/${tenantid[0].id}`)
+                .send(updatedTenantData);
+
+            expect(response2.statusCode).toBe(401);
         });
 
         it("should return 403 if user is not an admin", async () => {
@@ -102,6 +117,7 @@ describe("POST /tenants", () => {
                 role: Roles.MANAGER,
             });
 
+            //Arrange
             const tenantData = {
                 name: "Tenant Name",
                 address: "Tenant Address",
@@ -110,16 +126,29 @@ describe("POST /tenants", () => {
             //Act
             const response = await request(app)
                 .post("/tenants")
-                .set("Cookie", [`accessToken=${managerToken}`])
+                .set("Cookie", [`accessToken=${adminToken}`])
                 .send(tenantData);
 
-            expect(response.statusCode).toBe(403);
+            //Assert
+            expect(response.statusCode).toBe(201);
 
             const tenantRepository = connection.getRepository(Tenant);
-            const tenants = await tenantRepository.find();
+            const tenantid = await tenantRepository.find({
+                select: ["id"],
+            });
 
-            //Assert
-            expect(tenants).toHaveLength(0);
+            const updatedTenantData = {
+                name: "New Tenant Name",
+                address: "Tenant Address",
+            };
+
+            //Act
+            const response2 = await request(app)
+                .patch(`/tenants/${tenantid[0].id}`)
+                .set("Cookie", [`accessToken=${managerToken}`])
+                .send(updatedTenantData);
+
+            expect(response2.statusCode).toBe(403);
         });
     });
 
@@ -127,7 +156,7 @@ describe("POST /tenants", () => {
         it("should return 400 status code if name field is missing", async () => {
             //Arrange
             const tenantData = {
-                name: "",
+                name: "Tenant Name",
                 address: "Tenant Address",
             };
 
@@ -138,14 +167,33 @@ describe("POST /tenants", () => {
                 .send(tenantData);
 
             //Assert
-            expect(response.statusCode).toBe(400);
+            expect(response.statusCode).toBe(201);
+
+            const tenantRepository = connection.getRepository(Tenant);
+            const tenantid = await tenantRepository.find({
+                select: ["id"],
+            });
+
+            const updatedTenantData = {
+                name: "",
+                address: "New Tenant Address",
+            };
+
+            //Act
+            const response2 = await request(app)
+                .patch(`/tenants/${tenantid[0].id}`)
+                .set("Cookie", [`accessToken=${adminToken}`])
+                .send(updatedTenantData);
+
+            //Assert
+            expect(response2.statusCode).toBe(400);
         });
 
         it("should return 400 status code if address field is missing", async () => {
             //Arrange
             const tenantData = {
                 name: "Tenant Name",
-                address: "",
+                address: "Tenant Address",
             };
 
             //Act
@@ -155,7 +203,26 @@ describe("POST /tenants", () => {
                 .send(tenantData);
 
             //Assert
-            expect(response.statusCode).toBe(400);
+            expect(response.statusCode).toBe(201);
+
+            const tenantRepository = connection.getRepository(Tenant);
+            const tenantid = await tenantRepository.find({
+                select: ["id"],
+            });
+
+            const updatedTenantData = {
+                name: "New Tenant Name",
+                address: "",
+            };
+
+            //Act
+            const response2 = await request(app)
+                .patch(`/tenants/${tenantid[0].id}`)
+                .set("Cookie", [`accessToken=${adminToken}`])
+                .send(updatedTenantData);
+
+            //Assert
+            expect(response2.statusCode).toBe(400);
         });
     });
 });
