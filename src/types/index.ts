@@ -1,11 +1,14 @@
 import { Request } from "express";
 
-export interface UserData {
+export interface LimitedUserData {
     firstName: string;
     lastName: string;
+    role: string;
+}
+export interface UserData extends LimitedUserData {
     email: string;
     password: string;
-    role: string;
+    tenantId?: number;
 }
 
 export interface RegisterUserRequest extends Request {

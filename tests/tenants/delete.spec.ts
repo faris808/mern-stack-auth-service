@@ -134,42 +134,4 @@ describe("DELETE /tenants/:id", () => {
             expect(response2.statusCode).toBe(403);
         });
     });
-
-    describe("Fields are missing", () => {
-        it("should return 400 status code if name field is missing", async () => {
-            //Arrange
-            const tenantData = {
-                name: "Tenant Name",
-                address: "Tenant Address",
-            };
-
-            //Act
-            const response = await request(app)
-                .post("/tenants")
-                .set("Cookie", [`accessToken=${adminToken}`])
-                .send(tenantData);
-
-            //Assert
-            expect(response.statusCode).toBe(201);
-
-            const tenantRepository = connection.getRepository(Tenant);
-            const tenantid = await tenantRepository.find({
-                select: ["id"],
-            });
-
-            const updatedTenantData = {
-                name: "",
-                address: "New Tenant Address",
-            };
-
-            //Act
-            const response2 = await request(app)
-                .patch(`/tenants/${tenantid[0].id}`)
-                .set("Cookie", [`accessToken=${adminToken}`])
-                .send(updatedTenantData);
-
-            //Assert
-            expect(response2.statusCode).toBe(400);
-        });
-    });
 });
