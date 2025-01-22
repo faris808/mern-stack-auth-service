@@ -28,8 +28,12 @@ router.get("/", (req: Request, res: Response, next: NextFunction) =>
     tenantController.getTenantList(req, res, next),
 );
 
-router.get("/:id", (req: Request, res: Response, next: NextFunction) =>
-    tenantController.getTenantById(req, res, next),
+router.get(
+    "/:id",
+    authenticate,
+    canAccess([Roles.ADMIN]),
+    (req: Request, res: Response, next: NextFunction) =>
+        tenantController.getTenantById(req, res, next),
 );
 
 router.patch(
