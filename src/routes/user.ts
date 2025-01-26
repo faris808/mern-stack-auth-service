@@ -1,4 +1,9 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, {
+    NextFunction,
+    Request,
+    RequestHandler,
+    Response,
+} from "express";
 import authenticate from "../middlewares/authenticate";
 import { canAccess } from "../middlewares/canAccess";
 import { Roles } from "../constants";
@@ -17,44 +22,44 @@ const userController = new UserController(userService, logger);
 
 router.post(
     "/",
-    authenticate,
+    authenticate as RequestHandler,
     canAccess([Roles.ADMIN]),
     createUserValidator,
     (req: Request, res: Response, next: NextFunction) =>
-        userController.create(req, res, next),
+        userController.create(req, res, next) as unknown as RequestHandler,
 );
 
 router.get(
     "/",
-    authenticate,
+    authenticate as RequestHandler,
     canAccess([Roles.ADMIN]),
     (req: Request, res: Response, next: NextFunction) =>
-        userController.getUserList(req, res, next),
+        userController.getUserList(req, res, next) as unknown as RequestHandler,
 );
 
 router.get(
     "/:id",
-    authenticate,
+    authenticate as RequestHandler,
     canAccess([Roles.ADMIN]),
     (req: Request, res: Response, next: NextFunction) =>
-        userController.getUserById(req, res, next),
+        userController.getUserById(req, res, next) as unknown as RequestHandler,
 );
 
 router.patch(
     "/:id",
-    authenticate,
+    authenticate as RequestHandler,
     canAccess([Roles.ADMIN]),
     updateUserValidator,
     (req: Request, res: Response, next: NextFunction) =>
-        userController.updateUser(req, res, next),
+        userController.updateUser(req, res, next) as unknown as RequestHandler,
 );
 
 router.delete(
     "/:id",
-    authenticate,
+    authenticate as RequestHandler,
     canAccess([Roles.ADMIN]),
     (req: Request, res: Response, next: NextFunction) =>
-        userController.deleteUser(req, res, next),
+        userController.deleteUser(req, res, next) as unknown as RequestHandler,
 );
 
 export default router;
