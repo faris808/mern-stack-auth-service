@@ -24,7 +24,15 @@ export const isJwt = (token: string | null): boolean => {
         });
         return true;
     } catch (err) {
-        console.error("Error occurred while validating parts:", err.message);
+        if (err instanceof Error) {
+            console.error(
+                "Error occurred while validating parts:",
+                err.message,
+            );
+        } else {
+            console.error("An unknown error occurred:", err);
+        }
+        // Optionally, you can perform additional actions based on the error
         return false;
     }
 };
