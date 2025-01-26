@@ -16,6 +16,13 @@ jobs:
               run: npm ci
             - name: Run eslint
               run: npm run lint:check
+
+            - name: Verify database connectivity
+              run: nc -zv $DB_HOST $DB_PORT
+              env:
+                  DB_HOST: ${{ secrets.TEST_DB_HOST }}
+                  DB_PORT: ${{ secrets.TEST_DB_PORT }}
+                  
             - name: Test and coverage
               run: npm run test
               env:
