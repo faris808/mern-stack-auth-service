@@ -24,6 +24,7 @@ export const isJwt = (token: string | null): boolean => {
         });
         return true;
     } catch (err) {
+        console.error("Error occurred while validating parts:", err.message);
         return false;
     }
 };
