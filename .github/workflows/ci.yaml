@@ -22,7 +22,7 @@ jobs:
               env:
                   DB_HOST: ${{ secrets.TEST_DB_HOST }}
                   DB_PORT: ${{ secrets.TEST_DB_PORT }}
-                  
+
             - name: Test and coverage
               run: npm run test
               env:
@@ -47,7 +47,7 @@ jobs:
         needs: build-and-test
         runs-on: ubuntu-latest
         env:
-            IMAGE_NAME: fariszama786/mern_auth_service 
+            IMAGE_NAME: fariszama786/mern_auth_service
             IMAGE_TAG: build-${{ github.run_number }}
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         steps:
