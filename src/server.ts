@@ -6,8 +6,9 @@ import { User } from "./entity/User";
 import { Roles } from "./constants";
 import bcrypt from "bcryptjs";
 
-const createAdminUser = async () => {
+export const createAdminUser = async () => {
     const userRepository = AppDataSource.getRepository(User);
+    console.log("Request is coming here:");
     const existingAdmin = await userRepository.findOne({
         where: { role: Roles.ADMIN },
     });
