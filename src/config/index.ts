@@ -17,6 +17,7 @@ const {
     PRIVATE_KEY,
     ADMIN_PASSWORD,
     ADMIN_EMAIL,
+    ORIGIN,
 } = process.env;
 
 export const Config = {
@@ -32,4 +33,5 @@ export const Config = {
     PRIVATE_KEY,
     ADMIN_PASSWORD,
     ADMIN_EMAIL,
+    ORIGIN,
 };
