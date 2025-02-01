@@ -9,18 +9,12 @@ export class TokenService {
         private readonly refreshTokenRepository: Repository<RefreshToken>,
     ) {}
     generateAccessToken(payload: JwtPayload) {
-        let privateKey: string;
-        if (!Config.PRIVATE_KEY) {
+        const privateKey = Buffer.from(
+            String(Config.PRIVATE_KEY),
+            "base64",
+        ).toString("utf-8");
+        if (!privateKey) {
             const error = createHttpError(500, "SECRET_KEY is not set");
-            throw error;
-        }
-        try {
-            privateKey = Config.PRIVATE_KEY;
-        } catch (err) {
-            const error = createHttpError(
-                500,
-                "Error while reading private key",
-            );
             throw error;
         }
         const accessToken = sign(payload, privateKey, {
