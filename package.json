@@ -11,7 +11,7 @@
         "lint:check": "eslint .",
         "lint:fix": "eslint . --fix",
         "prepare": "husky",
-        "test": "jest --no-cache --coverage --all --runInBand",
+        "test": "jest --no-cache --coverage --all --runInBand --forceExit",
         "test:watch": "jest --watch --runInBand",
         "start": "ts-node src/index.ts",
         "migration:generate": "typeorm-ts-node-commonjs migration:generate",

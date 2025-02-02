@@ -20,7 +20,8 @@ describe("POST /auth/register", () => {
 
     describe("Given all fields", () => {
         it("should persist the admin user in the database", async () => {
-            await createAdminUser();
+            const response = await createAdminUser();
+            console.log(response);
 
             //Assert
             const userRepository = connection.getRepository(User);

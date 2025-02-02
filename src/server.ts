@@ -8,7 +8,6 @@ import bcrypt from "bcryptjs";
 
 export const createAdminUser = async () => {
     const userRepository = AppDataSource.getRepository(User);
-    console.log("Request is coming here:");
     const existingAdmin = await userRepository.findOne({
         where: { role: Roles.ADMIN },
     });
@@ -28,9 +27,10 @@ export const createAdminUser = async () => {
             role: Roles.ADMIN,
             tenant: undefined,
         });
-
         await userRepository.save(adminUser);
+        return Promise.resolve();
     }
+    return Promise.resolve();
 };
 
 const StartServer = async () => {
