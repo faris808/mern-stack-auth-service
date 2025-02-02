@@ -34,6 +34,8 @@ jobs:
                   REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
                   JWKS_URI: ${{ secrets.JWKS_URI }}
                   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+                  ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+                  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
             - name: Build-ts
               run: npm run build
             - name: SonarCloud Scan
