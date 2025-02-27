@@ -59,3 +59,7 @@ export interface TenantQueryParams {
     perPage: number;
     q: string;
 }
+
+export interface UpdateUserRequest extends Request {
+    body: LimitedUserData;
+}
