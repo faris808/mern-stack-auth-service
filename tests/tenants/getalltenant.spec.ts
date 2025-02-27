@@ -64,7 +64,7 @@ describe("GET /tenants", () => {
                 .send();
 
             expect(response.statusCode).toBe(200);
-            expect(response.body).toHaveLength(2);
+            expect(response.body.data).toHaveLength(2);
         });
     });
 });

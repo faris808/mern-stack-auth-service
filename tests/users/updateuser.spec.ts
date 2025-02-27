@@ -63,7 +63,9 @@ describe("UPDATE /users/:id", () => {
             const updatedUserData = {
                 firstName: "New Faris",
                 lastName: "New Z",
+                email: "testnew@mern.space",
                 role: Roles.MANAGER,
+                tenantId: tenant.id,
             };
 
             const response = await request(app)
