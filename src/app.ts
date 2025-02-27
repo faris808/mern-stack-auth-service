@@ -12,7 +12,7 @@ import { Config } from "./config";
 const app = express();
 app.use(
     cors({
-        origin: [`${Config.ORIGIN}`],
+        origin: Config.ORIGIN,
         credentials: true,
     }),
 );

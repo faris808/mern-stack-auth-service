@@ -63,6 +63,8 @@ describe("GET /tenants", () => {
                 .set("Cookie", [`accessToken=${adminToken}`])
                 .send();
 
+            console.log(response.body);
+
             expect(response.statusCode).toBe(200);
             expect(response.body).toHaveLength(2);
         });
