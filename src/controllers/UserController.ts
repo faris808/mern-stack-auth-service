@@ -90,12 +90,14 @@ export class UserController {
             return;
         }
 
-        const { firstName, lastName, role } = req.body;
+        const { firstName, lastName, role, email, tenantId } = req.body;
         try {
             await this.userService.updateUserById(Number(userId), {
                 firstName,
                 lastName,
                 role,
+                email,
+                tenantId,
             });
             this.logger.info("User has been successfully updated", {
                 id: userId,
