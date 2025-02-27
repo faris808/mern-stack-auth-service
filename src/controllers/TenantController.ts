@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { TenantService } from "../services/TenantService";
-import { CreateTenantRequest } from "../types";
+import { CreateTenantRequest, TenantQueryParams } from "../types";
 import { Logger } from "winston";
-import { validationResult } from "express-validator";
+import { matchedData, validationResult } from "express-validator";
 import createHttpError from "http-errors";
 
 export class TenantController {
@@ -29,10 +29,19 @@ export class TenantController {
     }
 
     async getTenantList(req: Request, res: Response, next: NextFunction) {
+        const validatedQuery = matchedData(req, { onlyValidData: true });
+        console.log("validated query of tenantlist is:-", validatedQuery);
         try {
-            const tenantlist = await this.tenantService.getTenantData();
+            const [tenants, count] = await this.tenantService.getTenantData(
+                validatedQuery as TenantQueryParams,
+            );
             this.logger.info("tenant list has been successfully fetched");
-            res.status(200).json(tenantlist);
+            res.status(200).json({
+                currenPage: validatedQuery.currenPage,
+                perPage: validatedQuery.perPage,
+                total: count,
+                data: tenants,
+            });
         } catch (error) {
             next(error);
             return;
