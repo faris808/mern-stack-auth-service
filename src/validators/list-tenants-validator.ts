@@ -10,14 +10,6 @@ export default checkSchema(
                 },
             },
         },
-        role: {
-            customSanitizer: {
-                options: (value: unknown) => {
-                    console.log("Inside role value is:", value);
-                    return value ? value : "";
-                },
-            },
-        },
         currentPage: {
             customSanitizer: {
                 options: (value) => {
